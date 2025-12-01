@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة التعليم الإلكترونية - ClassWithOnline</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+</head>
+<body>
+    <!-- رأس الموقع -->
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">📚 ClassWithOnline</a>
+            <nav>
+                <ul>
+                    <li><a href="#step">STEP</a></li>
+                    <li><a href="#secondary">الثانوي</a></li>
+                    <li><a href="#english">الإنجليزية</a></li>
+                    <li><a href="#messages">الرسائل</a></li>
+                    <li><a href="#notifications">التنبيهات</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="container">
+        <!-- الشريط الجانبي -->
+        <aside class="sidebar">
+            <h3>الأقسام</h3>
+            <ul>
+                <li><a href="#step" class="active">STEP - تأسيس الإنجليزية</a></li>
+                <li><a href="#secondary">شروحات الصف الثالث الثانوي</a></li>
+                <li><a href="#english">تأسيس اللغة الإنجليزية</a></li>
+                <li><a href="#quizzes">الاختبارات المحاكاة</a></li>
+                <li><a href="#materials">المواد التعليمية</a></li>
+            </ul>
+
+            <h3 style="margin-top: 2rem;">الموارد</h3>
+            <ul>
+                <li><a href="#videos">الفيديوهات</a></li>
+                <li><a href="#files">ملفات PDF</a></li>
+                <li><a href="#worksheets">أوراق العمل</a></li>
+            </ul>
+        </aside>
+
+        <!-- المحتوى -->
+        <main class="content">
+            <!-- القسم الأول: STEP -->
+            <section id="step">
+                <h1>🎓 STEP - تأسيس اللغة الإنجليزية</h1>
+                <p>
+                    مرحباً بك في قسم STEP! هنا ستجد كل ما تحتاجه لتأسيس قوي في اللغة الإنجليزية.
+                    يتضمن هذا القسم فيديوهات شرح تفصيلية، أوراق عمل محلولة وغير محلولة، واختبارات محاكاة تفاعلية.
+                </p>
+
+                <h2>الدورات المتاحة</h2>
+                <div id="courses-container" class="cards-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>جاري التحميل...</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>يتم تحميل الدورات من قاعدة البيانات</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="course-details"></div>
+            </section>
+
+            <!-- القسم الثاني: شروحات الثانوي -->
+            <section id="secondary" style="margin-top: 3rem;">
+                <h1>📖 شروحات الصف الثالث الثانوي</h1>
+                <p>
+                    هذا القسم مخصص لشرح المناهج الدراسية للصف الثالث الثانوي بطريقة مفصلة وسهلة الفهم.
+                    ستجد هنا شروحات فيديو، ملفات PDF، وأسئلة اختبارات محاكاة.
+                </p>
+
+                <h2>المواضيع الرئيسية</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>القواعد النحوية</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>شرح مفصل لقواعد اللغة الإنجليزية</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary">عرض المحتوى</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>المفردات</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>تعلم مفردات جديدة بطريقة منظمة</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary">عرض المحتوى</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>الاستماع والنطق</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>تحسين مهارات الاستماع والنطق</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary">عرض المحتوى</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- القسم الثالث: تأسيس الإنجليزية -->
+            <section id="english" style="margin-top: 3rem;">
+                <h1>🌍 تأسيس اللغة الإنجليزية</h1>
+                <p>
+                    برنامج تأسيسي شامل للبدء من الصفر في تعلم اللغة الإنجليزية.
+                    يغطي هذا البرنامج جميع المستويات من المبتدئ إلى المتقدم.
+                </p>
+
+                <h2>مستويات البرنامج</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>المستوى الأول (A1)</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>للمبتدئين تماماً - تعلم الأساسيات</p>
+                            <p><strong>عدد الدروس:</strong> 20</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary">ابدأ الآن</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>المستوى الثاني (A2)</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>للمبتدئين - تطوير المهارات الأساسية</p>
+                            <p><strong>عدد الدروس:</strong> 25</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary">ابدأ الآن</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>المستوى الثالث (B1)</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>للمتوسطين - تطوير مهارات متقدمة</p>
+                            <p><strong>عدد الدروس:</strong> 30</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-primary">ابدأ الآن</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- قسم الاختبارات -->
+            <section id="quizzes" style="margin-top: 3rem;">
+                <h1>✏️ الاختبارات المحاكاة</h1>
+                <p>
+                    اختبر معلوماتك من خلال اختبارات محاكاة تفاعلية تغطي جميع المواضيع.
+                    احصل على نتائج فورية وتقييم شامل لأدائك.
+                </p>
+
+                <h2>الاختبارات المتاحة</h2>
+                <div id="quizzes-container" class="cards-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>جاري التحميل...</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>يتم تحميل الاختبارات من قاعدة البيانات</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="quiz-container"></div>
+            </section>
+
+            <!-- قسم الرسائل -->
+            <section id="messages" style="margin-top: 3rem;">
+                <h1>💬 الرسائل والتنبيهات</h1>
+                <p>تواصل مع المعلمين والطلاب الآخرين من خلال نظام الرسائل المتكامل.</p>
+
+                <h2>الرسائل الأخيرة</h2>
+                <div id="messages-container" class="messages-container">
+                    <p style="padding: 1rem; text-align: center;">لا توجد رسائل حالياً</p>
+                </div>
+
+                <h2 style="margin-top: 2rem;">إرسال رسالة جديدة</h2>
+                <form onsubmit="event.preventDefault(); sendMessage();">
+                    <div class="form-group">
+                        <label for="message-sender">اسمك</label>
+                        <input type="text" id="message-sender" placeholder="أدخل اسمك" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text">الرسالة</label>
+                        <textarea id="message-text" placeholder="اكتب رسالتك هنا..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">إرسال الرسالة</button>
+                </form>
+            </section>
+
+            <!-- قسم التنبيهات -->
+            <section id="notifications" style="margin-top: 3rem;">
+                <h1>🔔 التنبيهات</h1>
+                <p>ابقَ على اطلاع دائم بآخر التحديثات والإعلانات المهمة.</p>
+
+                <h2>التنبيهات الأخيرة</h2>
+                <div id="notifications-container">
+                    <p style="padding: 1rem; text-align: center;">لا توجد تنبيهات حالياً</p>
+                </div>
+            </section>
+
+            <!-- قسم المواد التعليمية -->
+            <section id="materials" style="margin-top: 3rem;">
+                <h1>📚 المواد التعليمية</h1>
+                <p>مجموعة شاملة من المواد التعليمية بما فيها الفيديوهات وملفات PDF وأوراق العمل.</p>
+
+                <!-- التبويبات -->
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab(event, 'videos-tab')">الفيديوهات</button>
+                    <button class="tab-button" onclick="switchTab(event, 'files-tab')">ملفات PDF</button>
+                    <button class="tab-button" onclick="switchTab(event, 'worksheets-tab')">أوراق العمل</button>
+                </div>
+
+                <!-- محتوى الفيديوهات -->
+                <div id="videos-tab" class="tab-content active">
+                    <h3>فيديوهات تعليمية</h3>
+                    <div class="cards-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>فيديو تعليمي 1</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="video-container">
+                                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>فيديو تعليمي 2</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="video-container">
+                                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- محتوى ملفات PDF -->
+                <div id="files-tab" class="tab-content">
+                    <h3>ملفات PDF</h3>
+                    <ul class="file-list">
+                        <li class="file-item">
+                            <span class="file-icon">📄</span>
+                            <div class="file-info">
+                                <h4>ملف شرح القواعد النحوية</h4>
+                                <p>ملف PDF - 2.5 MB</p>
+                            </div>
+                            <a href="#" class="btn btn-primary file-download">تحميل</a>
+                        </li>
+                        <li class="file-item">
+                            <span class="file-icon">📄</span>
+                            <div class="file-info">
+                                <h4>قاموس المفردات</h4>
+                                <p>ملف PDF - 1.8 MB</p>
+                            </div>
+                            <a href="#" class="btn btn-primary file-download">تحميل</a>
+                        </li>
+                        <li class="file-item">
+                            <span class="file-icon">📄</span>
+                            <div class="file-info">
+                                <h4>أمثلة الجمل المهمة</h4>
+                                <p>ملف PDF - 3.2 MB</p>
+                            </div>
+                            <a href="#" class="btn btn-primary file-download">تحميل</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- محتوى أوراق العمل -->
+                <div id="worksheets-tab" class="tab-content">
+                    <h3>أوراق العمل</h3>
+                    <ul class="file-list">
+                        <li class="file-item">
+                            <span class="file-icon">📋</span>
+                            <div class="file-info">
+                                <h4>ورقة عمل 1 - غير محلولة</h4>
+                                <p>PDF - للحل</p>
+                            </div>
+                            <a href="#" class="btn btn-warning file-download">تحميل</a>
+                        </li>
+                        <li class="file-item">
+                            <span class="file-icon">✓</span>
+                            <div class="file-info">
+                                <h4>ورقة عمل 1 - محلولة</h4>
+                                <p>PDF - الحل النموذجي</p>
+                            </div>
+                            <a href="#" class="btn btn-success file-download">تحميل</a>
+                        </li>
+                        <li class="file-item">
+                            <span class="file-icon">📋</span>
+                            <div class="file-info">
+                                <h4>ورقة عمل 2 - غير محلولة</h4>
+                                <p>PDF - للحل</p>
+                            </div>
+                            <a href="#" class="btn btn-warning file-download">تحميل</a>
+                        </li>
+                        <li class="file-item">
+                            <span class="file-icon">✓</span>
+                            <div class="file-info">
+                                <h4>ورقة عمل 2 - محلولة</h4>
+                                <p>PDF - الحل النموذجي</p>
+                            </div>
+                            <a href="#" class="btn btn-success file-download">تحميل</a>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- التذييل -->
+    <footer>
+        <p>&copy; 2024 منصة ClassWithOnline للتعليم الإلكتروني. جميع الحقوق محفوظة.</p>
+        <p>تم تطويره بواسطة فريق التطوير المتخصص</p>
+        <p><a href="#">سياسة الخصوصية</a> | <a href="#">شروط الاستخدام</a> | <a href="#">اتصل بنا</a></p>
+    </footer>
+
+    <!-- ملفات JavaScript -->
+    <script src="assets/js/firebase-app.js"></script>
+    <script>
+        /**
+         * دالة للتبديل بين التبويبات
+         */
+        function switchTab(event, tabName) {
+            // إخفاء جميع التبويبات
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // إزالة الفئة active من جميع الأزرار
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // إظهار التبويب المختار
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        /**
+         * دالة للتنقل بين الأقسام
+         */
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+
+        /**
+         * تحديث الرسائل والتنبيهات تلقائياً كل 5 ثواني
+         */
+        setInterval(() => {
+            loadMessages();
+            loadNotifications();
+        }, 5000);
+    </script>
+</body>
+</html>
