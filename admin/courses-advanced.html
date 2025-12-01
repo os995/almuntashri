@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الدورات المتقدمة - ClassWithOnline</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+</head>
+<body>
+    <!-- رأس الموقع -->
+    <header>
+        <div class="header-container">
+            <a href="../index.html" class="logo">📚 ClassWithOnline - إدارة الدورات</a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">لوحة التحكم</a></li>
+                    <li><a href="../index.html">العودة للموقع</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="container">
+        <!-- الشريط الجانبي -->
+        <aside class="sidebar">
+            <h3>الخيارات</h3>
+            <ul>
+                <li><a href="#add-course" class="active">إضافة دورة</a></li>
+                <li><a href="#manage-courses">إدارة الدورات</a></li>
+                <li><a href="#add-content">إضافة محتوى</a></li>
+                <li><a href="#course-stats">إحصائيات الدورات</a></li>
+            </ul>
+        </aside>
+
+        <!-- المحتوى -->
+        <main class="content">
+            <!-- قسم إضافة دورة جديدة -->
+            <section id="add-course">
+                <h1>➕ إضافة دورة جديدة</h1>
+
+                <form id="add-course-form" onsubmit="handleAddCourse(event)">
+                    <div class="form-group">
+                        <label for="course-title">عنوان الدورة *</label>
+                        <input type="text" id="course-title" placeholder="مثال: STEP - المستوى الأول" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="course-description">وصف الدورة *</label>
+                        <textarea id="course-description" placeholder="أدخل وصف تفصيلي للدورة" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="course-level">المستوى *</label>
+                        <select id="course-level" required>
+                            <option value="">اختر المستوى</option>
+                            <option value="A1">A1 - مبتدئ جداً</option>
+                            <option value="A2">A2 - مبتدئ</option>
+                            <option value="B1">B1 - متوسط</option>
+                            <option value="B2">B2 - متوسط متقدم</option>
+                            <option value="C1">C1 - متقدم</option>
+                            <option value="Secondary">الثانوية</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="course-instructor">اسم المدرس</label>
+                        <input type="text" id="course-instructor" placeholder="أدخل اسم المدرس">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="course-duration">مدة الدورة (بالساعات)</label>
+                        <input type="number" id="course-duration" placeholder="مثال: 20" min="1">
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-block">إضافة الدورة</button>
+                </form>
+
+                <div id="course-add-message"></div>
+            </section>
+
+            <!-- قسم إدارة الدورات -->
+            <section id="manage-courses" style="margin-top: 3rem; display: none;">
+                <h1>📚 إدارة الدورات الموجودة</h1>
+
+                <div id="courses-management-container">
+                    <p>جاري تحميل الدورات...</p>
+                </div>
+            </section>
+
+            <!-- قسم إضافة محتوى -->
+            <section id="add-content" style="margin-top: 3rem; display: none;">
+                <h1>📹 إضافة محتوى للدورات</h1>
+
+                <h2>اختر الدورة</h2>
+                <div class="form-group">
+                    <select id="course-select" onchange="loadCourseForContent()">
+                        <option value="">اختر دورة</option>
+                    </select>
+                </div>
+
+                <div id="content-form-container" style="display: none;">
+                    <!-- إضافة فيديو -->
+                    <h2>إضافة فيديو</h2>
+                    <form id="add-video-form" onsubmit="handleAddVideo(event)">
+                        <div class="form-group">
+                            <label for="video-title">عنوان الفيديو</label>
+                            <input type="text" id="video-title" placeholder="أدخل عنوان الفيديو" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="video-url">رابط الفيديو (YouTube أو مباشر)</label>
+                            <input type="url" id="video-url" placeholder="https://www.youtube.com/watch?v=..." required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">إضافة الفيديو</button>
+                    </form>
+
+                    <!-- إضافة ملف PDF -->
+                    <h2 style="margin-top: 2rem;">إضافة ملف PDF</h2>
+                    <form id="add-file-form" onsubmit="handleAddFile(event)">
+                        <div class="form-group">
+                            <label for="file-name">اسم الملف</label>
+                            <input type="text" id="file-name" placeholder="مثال: ورقة عمل 1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="file-type">نوع الملف</label>
+                            <select id="file-type" required>
+                                <option value="">اختر النوع</option>
+                                <option value="محلول">محلول</option>
+                                <option value="غير محلول">غير محلول</option>
+                                <option value="شرح">شرح</option>
+                                <option value="أسئلة">أسئلة</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="file-upload">تحميل الملف</label>
+                            <input type="file" id="file-upload" accept=".pdf" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">إضافة الملف</button>
+                    </form>
+
+                    <div id="upload-progress" style="display: none; margin-top: 1rem;">
+                        <p>جاري التحميل...</p>
+                        <div style="width: 100%; height: 20px; background-color: #e0e0e0; border-radius: 10px; overflow: hidden;">
+                            <div id="progress-bar" style="width: 0%; height: 100%; background-color: var(--success-color); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- قسم إحصائيات الدورات -->
+            <section id="course-stats" style="margin-top: 3rem; display: none;">
+                <h1>📊 إحصائيات الدورات</h1>
+
+                <div id="stats-container" class="cards-grid">
+                    <p>جاري تحميل الإحصائيات...</p>
+                </div>
+
+                <h2 style="margin-top: 2rem;">تفاصيل الدورات</h2>
+                <div id="courses-details-container">
+                    <p>جاري تحميل التفاصيل...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- التذييل -->
+    <footer>
+        <p>&copy; 2024 منصة ClassWithOnline - إدارة الدورات المتقدمة</p>
+    </footer>
+
+    <!-- ملفات JavaScript -->
+    <script src="../assets/js/firebase-app.js"></script>
+    <script src="../assets/js/admin-functions.js"></script>
+    <script>
+        /**
+         * معالج إضافة دورة جديدة
+         */
+        function handleAddCourse(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('course-title').value;
+            const description = document.getElementById('course-description').value;
+            const level = document.getElementById('course-level').value;
+            const instructor = document.getElementById('course-instructor').value || 'غير محدد';
+            const duration = document.getElementById('course-duration').value || 0;
+
+            const course = {
+                title: title,
+                description: description,
+                level: level,
+                instructor: instructor,
+                duration: parseInt(duration),
+                created_at: new Date().toISOString(),
+                videos: {},
+                files: {},
+                students_count: 0
+            };
+
+            addToFirebase('courses', course).then(() => {
+                document.getElementById('add-course-form').reset();
+                document.getElementById('course-add-message').innerHTML = 
+                    '<div class="alert alert-success">✓ تم إضافة الدورة بنجاح!</div>';
+                
+                setTimeout(() => {
+                    document.getElementById('course-add-message').innerHTML = '';
+                }, 3000);
+
+                loadCoursesForSelect();
+                updateCourseStats();
+            });
+        }
+
+        /**
+         * تحميل الدورات في قائمة الاختيار
+         */
+        function loadCoursesForSelect() {
+            readFromFirebase('courses', (data) => {
+                const select = document.getElementById('course-select');
+                select.innerHTML = '<option value="">اختر دورة</option>';
+
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const course = data[key];
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = course.title;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        /**
+         * تحميل الدورة المختارة لإضافة محتوى
+         */
+        function loadCourseForContent() {
+            const courseId = document.getElementById('course-select').value;
+            const formContainer = document.getElementById('content-form-container');
+
+            if (courseId) {
+                formContainer.style.display = 'block';
+                document.getElementById('add-video-form').dataset.courseId = courseId;
+                document.getElementById('add-file-form').dataset.courseId = courseId;
+            } else {
+                formContainer.style.display = 'none';
+            }
+        }
+
+        /**
+         * معالج إضافة فيديو
+         */
+        function handleAddVideo(event) {
+            event.preventDefault();
+
+            const courseId = event.target.dataset.courseId;
+            const videoTitle = document.getElementById('video-title').value;
+            let videoUrl = document.getElementById('video-url').value;
+
+            // تحويل رابط YouTube إلى embed
+            videoUrl = getYouTubeEmbedUrl(videoUrl);
+
+            addVideoToCourse(courseId, videoTitle, videoUrl);
+            document.getElementById('add-video-form').reset();
+        }
+
+        /**
+         * معالج إضافة ملف
+         */
+        function handleAddFile(event) {
+            event.preventDefault();
+
+            const courseId = event.target.dataset.courseId;
+            const fileName = document.getElementById('file-name').value;
+            const fileType = document.getElementById('file-type').value;
+            const fileInput = document.getElementById('file-upload');
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                
+                // إظهار شريط التقدم
+                document.getElementById('upload-progress').style.display = 'block';
+
+                uploadFile(file, 'pdf', (data) => {
+                    if (data.success) {
+                        addFileToCourse(courseId, fileName, data.file_url, fileType);
+                        document.getElementById('add-file-form').reset();
+                        document.getElementById('upload-progress').style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        /**
+         * تحديث إحصائيات الدورات
+         */
+        function updateCourseStats() {
+            readFromFirebase('courses', (data) => {
+                const statsContainer = document.getElementById('stats-container');
+                const detailsContainer = document.getElementById('courses-details-container');
+
+                if (!data) {
+                    statsContainer.innerHTML = '<p>لا توجد دورات</p>';
+                    return;
+                }
+
+                let totalVideos = 0;
+                let totalFiles = 0;
+                let totalDuration = 0;
+
+                let detailsHtml = '<table style="width: 100%; border-collapse: collapse;">';
+                detailsHtml += '<tr style="background-color: var(--light-bg);">';
+                detailsHtml += '<th style="padding: 10px; border: 1px solid var(--border-color);">الدورة</th>';
+                detailsHtml += '<th style="padding: 10px; border: 1px solid var(--border-color);">المستوى</th>';
+                detailsHtml += '<th style="padding: 10px; border: 1px solid var(--border-color);">الفيديوهات</th>';
+                detailsHtml += '<th style="padding: 10px; border: 1px solid var(--border-color);">الملفات</th>';
+                detailsHtml += '<th style="padding: 10px; border: 1px solid var(--border-color);">المدة</th>';
+                detailsHtml += '</tr>';
+
+                Object.keys(data).forEach(key => {
+                    const course = data[key];
+                    const videosCount = Object.keys(course.videos || {}).length;
+                    const filesCount = Object.keys(course.files || {}).length;
+
+                    totalVideos += videosCount;
+                    totalFiles += filesCount;
+                    totalDuration += course.duration || 0;
+
+                    detailsHtml += '<tr>';
+                    detailsHtml += `<td style="padding: 10px; border: 1px solid var(--border-color);">${course.title}</td>`;
+                    detailsHtml += `<td style="padding: 10px; border: 1px solid var(--border-color);">${course.level}</td>`;
+                    detailsHtml += `<td style="padding: 10px; border: 1px solid var(--border-color); text-align: center;">📹 ${videosCount}</td>`;
+                    detailsHtml += `<td style="padding: 10px; border: 1px solid var(--border-color); text-align: center;">📄 ${filesCount}</td>`;
+                    detailsHtml += `<td style="padding: 10px; border: 1px solid var(--border-color); text-align: center;">⏱️ ${course.duration || 0}h</td>`;
+                    detailsHtml += '</tr>';
+                });
+
+                detailsHtml += '</table>';
+
+                // عرض الإحصائيات
+                statsContainer.innerHTML = `
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>إجمالي الدورات</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="font-size: 2rem; text-align: center; color: var(--secondary-color);">
+                                ${Object.keys(data).length}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>إجمالي الفيديوهات</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="font-size: 2rem; text-align: center; color: var(--secondary-color);">
+                                ${totalVideos}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>إجمالي الملفات</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="font-size: 2rem; text-align: center; color: var(--secondary-color);">
+                                ${totalFiles}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>إجمالي الساعات</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="font-size: 2rem; text-align: center; color: var(--secondary-color);">
+                                ${totalDuration}h
+                            </p>
+                        </div>
+                    </div>
+                `;
+
+                detailsContainer.innerHTML = detailsHtml;
+            });
+        }
+
+        /**
+         * التنقل بين الأقسام
+         */
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+
+                // إزالة الفئة active من جميع الروابط
+                document.querySelectorAll('.sidebar a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+
+                // إخفاء جميع الأقسام
+                document.querySelectorAll('main section').forEach(section => {
+                    section.style.display = 'none';
+                });
+
+                // عرض القسم المختار
+                const target = document.querySelector(href);
+                if (target) {
+                    target.style.display = 'block';
+
+                    // تحميل البيانات المناسبة
+                    if (href === '#manage-courses') {
+                        loadCoursesForManagement();
+                    } else if (href === '#course-stats') {
+                        updateCourseStats();
+                    }
+                }
+            });
+        });
+
+        /**
+         * تحميل الدورات للإدارة
+         */
+        function loadCoursesForManagement() {
+            readFromFirebase('courses', (data) => {
+                const container = document.getElementById('courses-management-container');
+
+                if (!data) {
+                    container.innerHTML = '<p>لا توجد دورات</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                Object.keys(data).forEach(key => {
+                    const course = data[key];
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <h3>${course.title}</h3>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>المستوى:</strong> ${course.level}</p>
+                            <p><strong>المدرس:</strong> ${course.instructor}</p>
+                            <p><strong>المدة:</strong> ${course.duration} ساعة</p>
+                            <p>${course.description}</p>
+                            <p style="font-size: 0.9rem; color: #666;">
+                                <strong>الفيديوهات:</strong> ${Object.keys(course.videos || {}).length} | 
+                                <strong>الملفات:</strong> ${Object.keys(course.files || {}).length}
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-danger" onclick="deleteCourseItem('${key}')">حذف</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            });
+        }
+
+        /**
+         * حذف دورة
+         */
+        function deleteCourseItem(courseId) {
+            if (confirm('هل أنت متأكد من حذف هذه الدورة؟')) {
+                deleteFromFirebase(`courses/${courseId}`).then(() => {
+                    loadCoursesForManagement();
+                    loadCoursesForSelect();
+                    updateCourseStats();
+                });
+            }
+        }
+
+        // تحميل البيانات عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCoursesForSelect();
+            updateCourseStats();
+        });
+    </script>
+</body>
+</html>

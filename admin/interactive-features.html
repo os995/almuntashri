@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الميزات التفاعلية - ClassWithOnline</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+</head>
+<body>
+    <!-- رأس الموقع -->
+    <header>
+        <div class="header-container">
+            <a href="../index.html" class="logo">📚 ClassWithOnline - الميزات التفاعلية</a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">لوحة التحكم</a></li>
+                    <li><a href="../index.html">العودة للموقع</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="container">
+        <!-- الشريط الجانبي -->
+        <aside class="sidebar">
+            <h3>الخيارات</h3>
+            <ul>
+                <li><a href="#quizzes" class="active">الاختبارات</a></li>
+                <li><a href="#messages">الرسائل</a></li>
+                <li><a href="#notifications">التنبيهات</a></li>
+                <li><a href="#quiz-results">نتائج الاختبارات</a></li>
+            </ul>
+        </aside>
+
+        <!-- المحتوى -->
+        <main class="content">
+            <!-- قسم الاختبارات -->
+            <section id="quizzes">
+                <h1>✏️ إدارة الاختبارات المحاكاة</h1>
+
+                <h2>إنشاء اختبار جديد</h2>
+                <form id="quiz-form" onsubmit="handleCreateQuiz(event)">
+                    <div class="form-group">
+                        <label for="quiz-title">عنوان الاختبار *</label>
+                        <input type="text" id="quiz-title" placeholder="مثال: اختبار القواعد النحوية" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quiz-description">وصف الاختبار</label>
+                        <textarea id="quiz-description" placeholder="أدخل وصف الاختبار"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quiz-difficulty">مستوى الصعوبة</label>
+                        <select id="quiz-difficulty">
+                            <option value="easy">سهل</option>
+                            <option value="medium" selected>متوسط</option>
+                            <option value="hard">صعب</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quiz-time-limit">حد زمني (دقيقة)</label>
+                        <input type="number" id="quiz-time-limit" placeholder="0 = بدون حد زمني" min="0">
+                    </div>
+
+                    <h3>الأسئلة</h3>
+                    <div id="questions-container">
+                        <div class="question-item" data-question="0">
+                            <h4>السؤال 1</h4>
+                            <div class="form-group">
+                                <label>نص السؤال *</label>
+                                <input type="text" class="question-text" placeholder="أدخل نص السؤال" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>الخيارات (مفصولة بفاصلة) *</label>
+                                <input type="text" class="question-options" placeholder="الخيار 1, الخيار 2, الخيار 3, الخيار 4" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>رقم الإجابة الصحيحة (1, 2, 3...) *</label>
+                                <input type="number" class="question-answer" min="1" placeholder="1" required>
+                            </div>
+
+                            <button type="button" class="btn btn-danger" onclick="removeQuestion(this)">حذف السؤال</button>
+                            <hr>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-warning" onclick="addQuestion()">➕ إضافة سؤال</button>
+                    <button type="submit" class="btn btn-success btn-block" style="margin-top: 1rem;">إنشاء الاختبار</button>
+                </form>
+
+                <h2 style="margin-top: 2rem;">الاختبارات الموجودة</h2>
+                <div id="quizzes-list" class="cards-grid">
+                    <p>جاري التحميل...</p>
+                </div>
+            </section>
+
+            <!-- قسم الرسائل -->
+            <section id="messages" style="margin-top: 3rem; display: none;">
+                <h1>💬 إدارة الرسائل</h1>
+
+                <h2>الرسائل الأخيرة</h2>
+                <div id="messages-list" class="messages-container">
+                    <p style="padding: 1rem;">جاري التحميل...</p>
+                </div>
+
+                <h2 style="margin-top: 2rem;">إرسال رسالة عامة</h2>
+                <form id="broadcast-message-form" onsubmit="handleBroadcastMessage(event)">
+                    <div class="form-group">
+                        <label for="broadcast-sender">من (الاسم)</label>
+                        <input type="text" id="broadcast-sender" placeholder="مثال: المدير" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="broadcast-text">نص الرسالة</label>
+                        <textarea id="broadcast-text" placeholder="اكتب الرسالة العامة" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">إرسال الرسالة</button>
+                </form>
+            </section>
+
+            <!-- قسم التنبيهات -->
+            <section id="notifications" style="margin-top: 3rem; display: none;">
+                <h1>🔔 إدارة التنبيهات</h1>
+
+                <h2>إرسال تنبيه جديد</h2>
+                <form id="notification-form" onsubmit="handleCreateNotification(event)">
+                    <div class="form-group">
+                        <label for="notif-title">عنوان التنبيه *</label>
+                        <input type="text" id="notif-title" placeholder="مثال: تحديث جديد متاح" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notif-message">نص التنبيه *</label>
+                        <textarea id="notif-message" placeholder="أدخل نص التنبيه" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notif-type">نوع التنبيه *</label>
+                        <select id="notif-type" required>
+                            <option value="info">معلومة</option>
+                            <option value="success">نجاح</option>
+                            <option value="warning">تحذير</option>
+                            <option value="danger">خطر</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notif-priority">الأولوية</label>
+                        <select id="notif-priority">
+                            <option value="normal">عادي</option>
+                            <option value="high">مرتفع</option>
+                            <option value="urgent">عاجل</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-block">إرسال التنبيه</button>
+                </form>
+
+                <h2 style="margin-top: 2rem;">التنبيهات الأخيرة</h2>
+                <div id="notifications-list">
+                    <p>جاري التحميل...</p>
+                </div>
+            </section>
+
+            <!-- قسم نتائج الاختبارات -->
+            <section id="quiz-results" style="margin-top: 3rem; display: none;">
+                <h1>📊 نتائج الاختبارات</h1>
+
+                <h2>إحصائيات عامة</h2>
+                <div id="quiz-stats-container" class="cards-grid">
+                    <p>جاري التحميل...</p>
+                </div>
+
+                <h2 style="margin-top: 2rem;">تفاصيل النتائج</h2>
+                <div id="quiz-results-details">
+                    <p>جاري التحميل...</p>
+                </div>
+
+                <button class="btn btn-primary" onclick="exportQuizResults()" style="margin-top: 1rem;">
+                    📥 تصدير النتائج (CSV)
+                </button>
+            </section>
+        </main>
+    </div>
+
+    <!-- التذييل -->
+    <footer>
+        <p>&copy; 2024 منصة ClassWithOnline - الميزات التفاعلية</p>
+    </footer>
+
+    <!-- ملفات JavaScript -->
+    <script src="../assets/js/firebase-app.js"></script>
+    <script src="../assets/js/admin-functions.js"></script>
+    <script>
+        /**
+         * معالج إنشاء اختبار جديد
+         */
+        function handleCreateQuiz(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('quiz-title').value;
+            const description = document.getElementById('quiz-description').value;
+            const difficulty = document.getElementById('quiz-difficulty').value;
+            const timeLimit = document.getElementById('quiz-time-limit').value || 0;
+            const questions = {};
+
+            document.querySelectorAll('.question-item').forEach((item, index) => {
+                const text = item.querySelector('.question-text').value;
+                const optionsStr = item.querySelector('.question-options').value;
+                const correctAnswerIndex = parseInt(item.querySelector('.question-answer').value) - 1;
+
+                const options = {};
+                optionsStr.split(',').forEach((opt, i) => {
+                    options[i] = opt.trim();
+                });
+
+                questions[index] = {
+                    text: text,
+                    options: options,
+                    correctAnswer: correctAnswerIndex
+                };
+            });
+
+            const quiz = {
+                title: title,
+                description: description,
+                difficulty: difficulty,
+                time_limit: parseInt(timeLimit),
+                questions: questions,
+                created_at: new Date().toISOString()
+            };
+
+            addToFirebase('quizzes', quiz).then(() => {
+                document.getElementById('quiz-form').reset();
+                document.getElementById('questions-container').innerHTML = `
+                    <div class="question-item" data-question="0">
+                        <h4>السؤال 1</h4>
+                        <div class="form-group">
+                            <label>نص السؤال *</label>
+                            <input type="text" class="question-text" placeholder="أدخل نص السؤال" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>الخيارات (مفصولة بفاصلة) *</label>
+                            <input type="text" class="question-options" placeholder="الخيار 1, الخيار 2, الخيار 3, الخيار 4" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>رقم الإجابة الصحيحة (1, 2, 3...) *</label>
+                            <input type="number" class="question-answer" min="1" placeholder="1" required>
+                        </div>
+
+                        <button type="button" class="btn btn-danger" onclick="removeQuestion(this)">حذف السؤال</button>
+                        <hr>
+                    </div>
+                `;
+                loadQuizzesForAdmin();
+            });
+        }
+
+        /**
+         * إضافة سؤال جديد
+         */
+        function addQuestion() {
+            const container = document.getElementById('questions-container');
+            const questionCount = container.querySelectorAll('.question-item').length;
+
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-item';
+            questionDiv.setAttribute('data-question', questionCount);
+            questionDiv.innerHTML = `
+                <h4>السؤال ${questionCount + 1}</h4>
+                <div class="form-group">
+                    <label>نص السؤال *</label>
+                    <input type="text" class="question-text" placeholder="أدخل نص السؤال" required>
+                </div>
+
+                <div class="form-group">
+                    <label>الخيارات (مفصولة بفاصلة) *</label>
+                    <input type="text" class="question-options" placeholder="الخيار 1, الخيار 2, الخيار 3, الخيار 4" required>
+                </div>
+
+                <div class="form-group">
+                    <label>رقم الإجابة الصحيحة (1, 2, 3...) *</label>
+                    <input type="number" class="question-answer" min="1" placeholder="1" required>
+                </div>
+
+                <button type="button" class="btn btn-danger" onclick="removeQuestion(this)">حذف السؤال</button>
+                <hr>
+            `;
+
+            container.appendChild(questionDiv);
+        }
+
+        /**
+         * حذف سؤال
+         */
+        function removeQuestion(button) {
+            button.parentElement.remove();
+        }
+
+        /**
+         * تحميل الاختبارات للإدارة
+         */
+        function loadQuizzesForAdmin() {
+            readFromFirebase('quizzes', (data) => {
+                const container = document.getElementById('quizzes-list');
+
+                if (!data) {
+                    container.innerHTML = '<p>لا توجد اختبارات</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                Object.keys(data).forEach(key => {
+                    const quiz = data[key];
+                    const questionsCount = Object.keys(quiz.questions || {}).length;
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <h3>${quiz.title}</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>${quiz.description}</p>
+                            <p><strong>مستوى الصعوبة:</strong> ${quiz.difficulty}</p>
+                            <p><strong>عدد الأسئلة:</strong> ${questionsCount}</p>
+                            <p><strong>الحد الزمني:</strong> ${quiz.time_limit > 0 ? quiz.time_limit + ' دقيقة' : 'بدون حد'}</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-danger" onclick="deleteQuizItem('${key}')">حذف</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            });
+        }
+
+        /**
+         * حذف اختبار
+         */
+        function deleteQuizItem(quizId) {
+            if (confirm('هل أنت متأكد من حذف هذا الاختبار؟')) {
+                deleteFromFirebase(`quizzes/${quizId}`).then(() => {
+                    loadQuizzesForAdmin();
+                });
+            }
+        }
+
+        /**
+         * معالج إرسال رسالة عامة
+         */
+        function handleBroadcastMessage(event) {
+            event.preventDefault();
+
+            const sender = document.getElementById('broadcast-sender').value;
+            const text = document.getElementById('broadcast-text').value;
+
+            const message = {
+                sender: sender,
+                text: text,
+                timestamp: new Date().toISOString(),
+                type: 'broadcast'
+            };
+
+            addToFirebase('messages', message).then(() => {
+                document.getElementById('broadcast-message-form').reset();
+                loadMessagesForAdmin();
+            });
+        }
+
+        /**
+         * تحميل الرسائل للإدارة
+         */
+        function loadMessagesForAdmin() {
+            readFromFirebase('messages', (data) => {
+                const container = document.getElementById('messages-list');
+
+                if (!data) {
+                    container.innerHTML = '<p>لا توجد رسائل</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                Object.keys(data).reverse().forEach(key => {
+                    const message = data[key];
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message';
+                    messageDiv.innerHTML = `
+                        <div class="message-header">
+                            <span class="message-sender">${message.sender}</span>
+                            <span class="message-time">${new Date(message.timestamp).toLocaleString('ar-SA')}</span>
+                        </div>
+                        <div class="message-body">${message.text}</div>
+                    `;
+                    container.appendChild(messageDiv);
+                });
+            });
+        }
+
+        /**
+         * معالج إنشاء تنبيه جديد
+         */
+        function handleCreateNotification(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('notif-title').value;
+            const message = document.getElementById('notif-message').value;
+            const type = document.getElementById('notif-type').value;
+            const priority = document.getElementById('notif-priority').value;
+
+            const notification = {
+                title: title,
+                message: message,
+                type: type,
+                priority: priority,
+                timestamp: new Date().toISOString()
+            };
+
+            addToFirebase('notifications', notification).then(() => {
+                document.getElementById('notification-form').reset();
+                loadNotificationsForAdmin();
+            });
+        }
+
+        /**
+         * تحميل التنبيهات للإدارة
+         */
+        function loadNotificationsForAdmin() {
+            readFromFirebase('notifications', (data) => {
+                const container = document.getElementById('notifications-list');
+
+                if (!data) {
+                    container.innerHTML = '<p>لا توجد تنبيهات</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                Object.keys(data).reverse().forEach(key => {
+                    const notification = data[key];
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = `alert alert-${notification.type || 'info'}`;
+                    alertDiv.innerHTML = `
+                        <strong>${notification.title}</strong><br>
+                        ${notification.message}<br>
+                        <small>الأولوية: ${notification.priority} | ${new Date(notification.timestamp).toLocaleString('ar-SA')}</small>
+                    `;
+                    container.appendChild(alertDiv);
+                });
+            });
+        }
+
+        /**
+         * تحديث إحصائيات الاختبارات
+         */
+        function updateQuizStats() {
+            getQuizResults((results) => {
+                let totalAttempts = Object.keys(results).length;
+                let totalScore = 0;
+                let averagePercentage = 0;
+                let passCount = 0;
+
+                Object.keys(results).forEach(key => {
+                    const result = results[key];
+                    totalScore += result.percentage || 0;
+                    if (result.percentage >= 60) passCount++;
+                });
+
+                if (totalAttempts > 0) {
+                    averagePercentage = totalScore / totalAttempts;
+                }
+
+                const container = document.getElementById('quiz-stats-container');
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>إجمالي المحاولات</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="font-size: 2rem; text-align: center; color: var(--secondary-color);">
+                                ${totalAttempts}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>متوسط النسبة</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="font-size: 2rem; text-align: center; color: var(--secondary-color);">
+                                ${averagePercentage.toFixed(2)}%
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>عدد الناجحين</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="font-size: 2rem; text-align: center; color: var(--success-color);">
+                                ${passCount}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>نسبة النجاح</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="font-size: 2rem; text-align: center; color: var(--secondary-color);">
+                                ${totalAttempts > 0 ? ((passCount / totalAttempts) * 100).toFixed(2) : 0}%
+                            </p>
+                        </div>
+                    </div>
+                `;
+
+                // تحميل التفاصيل
+                loadQuizResultsDetails(results);
+            });
+        }
+
+        /**
+         * تحميل تفاصيل نتائج الاختبارات
+         */
+        function loadQuizResultsDetails(results) {
+            const container = document.getElementById('quiz-results-details');
+
+            if (Object.keys(results).length === 0) {
+                container.innerHTML = '<p>لا توجد نتائج اختبارات بعد</p>';
+                return;
+            }
+
+            let html = '<table style="width: 100%; border-collapse: collapse;">';
+            html += '<tr style="background-color: var(--light-bg);">';
+            html += '<th style="padding: 10px; border: 1px solid var(--border-color);">الاختبار</th>';
+            html += '<th style="padding: 10px; border: 1px solid var(--border-color);">النتيجة</th>';
+            html += '<th style="padding: 10px; border: 1px solid var(--border-color);">النسبة المئوية</th>';
+            html += '<th style="padding: 10px; border: 1px solid var(--border-color);">التاريخ</th>';
+            html += '</tr>';
+
+            Object.keys(results).reverse().forEach(key => {
+                const result = results[key];
+                const statusColor = result.percentage >= 60 ? 'var(--success-color)' : 'var(--danger-color)';
+                html += '<tr>';
+                html += `<td style="padding: 10px; border: 1px solid var(--border-color);">اختبار #${result.quizId.substring(0, 8)}</td>`;
+                html += `<td style="padding: 10px; border: 1px solid var(--border-color); text-align: center;">${result.score}/${result.totalQuestions}</td>`;
+                html += `<td style="padding: 10px; border: 1px solid var(--border-color); text-align: center; color: ${statusColor}; font-weight: bold;">${result.percentage.toFixed(2)}%</td>`;
+                html += `<td style="padding: 10px; border: 1px solid var(--border-color);">${new Date(result.timestamp).toLocaleDateString('ar-SA')}</td>`;
+                html += '</tr>';
+            });
+
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        /**
+         * تصدير نتائج الاختبارات
+         */
+        function exportQuizResults() {
+            getQuizResults((results) => {
+                const data = [];
+
+                Object.keys(results).forEach(key => {
+                    const result = results[key];
+                    data.push({
+                        'معرف الاختبار': result.quizId,
+                        'النتيجة': `${result.score}/${result.totalQuestions}`,
+                        'النسبة المئوية': `${result.percentage.toFixed(2)}%`,
+                        'التاريخ': new Date(result.timestamp).toLocaleString('ar-SA')
+                    });
+                });
+
+                exportToCSV(data, `quiz_results_${new Date().toISOString().split('T')[0]}.csv`);
+            });
+        }
+
+        /**
+         * التنقل بين الأقسام
+         */
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+
+                // إزالة الفئة active من جميع الروابط
+                document.querySelectorAll('.sidebar a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+
+                // إخفاء جميع الأقسام
+                document.querySelectorAll('main section').forEach(section => {
+                    section.style.display = 'none';
+                });
+
+                // عرض القسم المختار
+                const target = document.querySelector(href);
+                if (target) {
+                    target.style.display = 'block';
+
+                    // تحميل البيانات المناسبة
+                    if (href === '#messages') {
+                        loadMessagesForAdmin();
+                    } else if (href === '#notifications') {
+                        loadNotificationsForAdmin();
+                    } else if (href === '#quiz-results') {
+                        updateQuizStats();
+                    }
+                }
+            });
+        });
+
+        // تحميل البيانات عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuizzesForAdmin();
+            loadMessagesForAdmin();
+            loadNotificationsForAdmin();
+        });
+    </script>
+</body>
+</html>
